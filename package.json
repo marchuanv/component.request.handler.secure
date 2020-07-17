@@ -1,0 +1,28 @@
+{
+  "name": "component.request.handler.secure.authenticate",
+  "version": "1.0.0",
+  "description": "",
+  "main": "component.request.handler.secure.authenticate.js",
+  "engines": {
+    "node": "12.16.1",
+    "npm": "6.13.4"
+  },
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/marchuanv/component.request.handler.secure.authenticate.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/marchuanv/component.request.handler.secure.authenticate/issues"
+  },
+  "homepage": "https://github.com/marchuanv/component.request.handler.secure.authenticate#readme",
+  "dependencies": {
+    "component.request.handler.user": "git+https://github.com/marchuanv/component.request.handler.user.git",
+    "logging": "git+https://github.com/marchuanv/logging.git",
+    "utils": "git+https://github.com/marchuanv/utils.git"
+  }
+}
