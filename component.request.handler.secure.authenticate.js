@@ -40,7 +40,7 @@ module.exports = {
                     const { publicKey, privateKey } = generateKeys(results.hashedPassphrase);
                     headers.token = encryptToBase64Str(utils.getJSONString({ username , fromhost, fromport }), publicKey);
                     headers.encryptionkey = stringToBase64(publicKey);
-                    return await delegate.call(callingModule, { headers, data, privateKey });
+                    return await delegate.call(callingModule, { headers, data, privateKey, hashedPassphrase: results.hashedPassphrase });
                 }
             }
             const statusMessage = "Unauthorised";
