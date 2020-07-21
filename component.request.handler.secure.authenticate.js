@@ -42,10 +42,10 @@ module.exports = {
                         return await delegate.call({context: "component.request.handler.secure"}, { headers, data, privateKey, hashedPassphrase: results.hashedPassphrase });
                     }
                 }
-                const statusMessage = "Unauthorised";
                 logging.write("Request Handler Secure Authenticate",`failed to authenticate ${sessionName}.`);
+                const statusMessage = "Unauthorised";
                 return { 
-                    headers: { "Content-Type":"text/plain", "Content-Length": Buffer.byteLength(statusMessage) },
+                    headers: { "Content-Type":"text/plain" },
                     statusCode: 401, 
                     statusMessage,
                     data: statusMessage
