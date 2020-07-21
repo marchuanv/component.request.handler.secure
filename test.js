@@ -3,8 +3,7 @@ const delegate = require("component.delegate");
 const utils = require("utils");
 ( async() => {
 
-    const callingModule = "component.request.handler.secure.authorise";
-    delegate.register(callingModule, () => {
+    delegate.register("component.request.handler.secure", "secure", () => {
         let statusMessage = "Success";
         return { 
             headers: { "Content-Type":"text/plain", "Content-Length": Buffer.byteLength(statusMessage) },
@@ -16,7 +15,7 @@ const utils = require("utils");
 
     //Secure
     const { hashedPassphrase, hashedPassphraseSalt } = utils.hashPassphrase("secure1");
-    await requestHandlerLogin.handle(callingModule, {
+    await requestHandlerLogin.handle({
         privateHost: "localhost",
         privatePort: 3000,
         publicHost: "localhost",
@@ -25,7 +24,7 @@ const utils = require("utils");
         hashedPassphrase,
         hashedPassphraseSalt
     });
-    await requestHandlerLogin.handle(callingModule, {
+    await requestHandlerLogin.handle({
         privateHost: "localhost",
         privatePort: 4000,
         publicHost: "localhost",
@@ -36,7 +35,7 @@ const utils = require("utils");
     });
 
     //Unsecure
-    await requestHandlerLogin.handle(callingModule, {
+    await requestHandlerLogin.handle({
         privateHost: "localhost",
         privatePort: 5000,
         publicHost: "localhost",

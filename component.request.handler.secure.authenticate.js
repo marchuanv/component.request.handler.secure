@@ -25,33 +25,33 @@ const generateKeys = (passphrase) => {
 };
 
 module.exports = { 
-    sessions: [],
-    handle: (callingModule, options) => {
+    handle: (options) => {
         const newOptions = JSON.parse(JSON.stringify(options));
         newOptions.path = "/authenticate";
-        const thisModule =  `component.request.handler.secure.authenticate.${newOptions.publicPort}`;
-        delegate.register(thisModule, async ({ headers, data }) => {
-            let { username, passphrase, fromhost, fromport } = headers;
-            const sessionName = `${username}_${newOptions.publicHost}_${newOptions.publicPort}`;
-            if (passphrase){
-                const results = utils.hashPassphrase(passphrase, newOptions.hashedPassphraseSalt);
-                if (results.hashedPassphrase ===  newOptions.hashedPassphrase){
-                    logging.write("Request Handler Secure Authenticate",`${sessionName} is authenticated.`);
-                    const { publicKey, privateKey } = generateKeys(results.hashedPassphrase);
-                    headers.token = encryptToBase64Str(utils.getJSONString({ username , fromhost, fromport }), publicKey);
-                    headers.encryptionkey = stringToBase64(publicKey);
-                    return await delegate.call(callingModule, { headers, data, privateKey, hashedPassphrase: results.hashedPassphrase });
+        delegate.register("component.request.handler.secure.authenticate", "authenticate", async ({ headers, data, privatePort }) => {
+            if (options.privatePort === privatePort){
+                let { username, passphrase, fromhost, fromport } = headers;
+                const sessionName = `${username}_${newOptions.publicHost}_${newOptions.publicPort}`;
+                if (passphrase){
+                    const results = utils.hashPassphrase(passphrase, newOptions.hashedPassphraseSalt);
+                    if (results.hashedPassphrase ===  newOptions.hashedPassphrase){
+                        logging.write("Request Handler Secure Authenticate",`${sessionName} is authenticated.`);
+                        const { publicKey, privateKey } = generateKeys(results.hashedPassphrase);
+                        headers.token = encryptToBase64Str(utils.getJSONString({ username , fromhost, fromport }), publicKey);
+                        headers.encryptionkey = stringToBase64(publicKey);
+                        return await delegate.call({context: "component.request.handler.secure"}, { headers, data, privateKey, hashedPassphrase: results.hashedPassphrase });
+                    }
                 }
+                const statusMessage = "Unauthorised";
+                logging.write("Request Handler Secure Authenticate",`failed to authenticate ${sessionName}.`);
+                return { 
+                    headers: { "Content-Type":"text/plain", "Content-Length": Buffer.byteLength(statusMessage) },
+                    statusCode: 401, 
+                    statusMessage,
+                    data: statusMessage
+                };
             }
-            const statusMessage = "Unauthorised";
-            logging.write("Request Handler Secure Authenticate",`failed to authenticate ${sessionName}.`);
-            return { 
-                headers: { "Content-Type":"text/plain", "Content-Length": Buffer.byteLength(statusMessage) },
-                statusCode: 401, 
-                statusMessage,
-                data: statusMessage
-            };
         });
-        requestHandlerUser.handle(thisModule, newOptions);
+        requestHandlerUser.handle(newOptions);
     }
 };
