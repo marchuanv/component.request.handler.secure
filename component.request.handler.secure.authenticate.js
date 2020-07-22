@@ -31,8 +31,7 @@ module.exports = {
         delegate.register("component.request.handler.secure.authenticate", "authenticate", async ({ headers, data, privatePort }) => {
             if (options.privatePort === privatePort){
                 if (!newOptions.hashedPassphrase || !newOptions.hashedPassphraseSalt){
-                    const statusMessage = "Success";
-                    return { headers: { "Content-Type":"text/plain" }, statusCode: 200, statusMessage, data: statusMessage };
+                    return { headers: { "content-type":"text/plain" }, statusCode: 200, statusMessage: "success", data: "authentication is not required." };
                 }
                 let { username, passphrase, fromhost, fromport } = headers;
                 const sessionName = `${username}_${newOptions.publicHost}_${newOptions.publicPort}`;
