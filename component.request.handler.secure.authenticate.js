@@ -26,30 +26,34 @@ const generateKeys = (passphrase) => {
 
 module.exports = { 
     handle: (options) => {
-        const newOptions = JSON.parse(JSON.stringify(options));
-        newOptions.path = "/authenticate";
-        delegate.register("component.request.handler.secure.authenticate", "authenticate", async ({ headers, data, privatePort }) => {
-            if (options.privatePort === privatePort){
-                if (!newOptions.hashedPassphrase || !newOptions.hashedPassphraseSalt){
-                    return { headers: { "content-type":"text/plain" }, statusCode: 200, statusMessage: "success", data: "authentication is not required." };
-                }
-                let { username, passphrase, fromhost, fromport } = headers;
-                const sessionName = `${username}_${newOptions.publicHost}_${newOptions.publicPort}`;
-                if (passphrase){
-                    const results = utils.hashPassphrase(passphrase, newOptions.hashedPassphraseSalt);
-                    if (results.hashedPassphrase ===  newOptions.hashedPassphrase){
-                        logging.write("Request Handler Secure Authenticate",`${sessionName} is authenticated.`);
-                        const { publicKey, privateKey } = generateKeys(results.hashedPassphrase);
-                        headers.token = encryptToBase64Str(utils.getJSONString({ username , fromhost, fromport }), publicKey);
-                        headers.encryptionkey = stringToBase64(publicKey);
-                        return await delegate.call({ context: "component.request.handler.secure" }, { headers, data, privateKey, hashedPassphrase: results.hashedPassphrase });
-                    }
-                }
-                logging.write("Request Handler Secure Authenticate",`failed to authenticate ${sessionName}.`);
-                const statusMessage = "Unauthorised";
-                return { headers: { "Content-Type":"text/plain" }, statusCode: 401, statusMessage, data: statusMessage };
+        requestHandlerUser.handle(options);
+
+        const authOptions = JSON.parse(JSON.stringify(options));
+        authOptions.path = "/authenticate";
+        const name = `${authOptions.publicPort}${authOptions.path}`;
+
+        requestHandlerUser.handle(authOptions);
+
+        delegate.register(`component.request.handler.secure.authenticate`, name, async ({ headers, data, publicPort }) => {
+            if (!authOptions.hashedPassphrase || !authOptions.hashedPassphraseSalt){
+                logging.write("Request Handler Secure Authenticate",`no authentication needed`);
+                return await delegate.call({ context: "component.request.handler.secure", name }, { headers, data, publicPort });
             }
+            let { username, passphrase, fromhost, fromport } = headers;
+            const sessionName = `${username}_${authOptions.publicHost}_${authOptions.publicPort}`;
+            if (passphrase){
+                const results = utils.hashPassphrase(passphrase, authOptions.hashedPassphraseSalt);
+                if (results.hashedPassphrase ===  authOptions.hashedPassphrase){
+                    logging.write("Request Handler Secure Authenticate",`${sessionName} is authenticated.`);
+                    const { publicKey, privateKey } = generateKeys(results.hashedPassphrase);
+                    headers.token = encryptToBase64Str(utils.getJSONString({ username , fromhost, fromport }), publicKey);
+                    headers.encryptionkey = stringToBase64(publicKey);
+                    return await delegate.call({ context: "component.request.handler.secure", name}, { headers, data, privateKey, hashedPassphrase: results.hashedPassphrase, publicPort });
+                }
+            }
+            logging.write("Request Handler Secure Authenticate",`failed to authenticate ${sessionName}.`);
+            const statusMessage = "Unauthorised";
+            return { headers: { "Content-Type":"text/plain" }, statusCode: 401, statusMessage, data: statusMessage };
         });
-        requestHandlerUser.handle(newOptions);
     }
 };
