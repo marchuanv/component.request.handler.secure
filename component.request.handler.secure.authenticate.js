@@ -37,10 +37,12 @@ module.exports = {
         requestHandlerUser.handle(authOptions);
         
         const authName = `${authOptions.publicPort}/authenticate`;
+        const name = `${options.publicPort}${options.path}`;
+
         delegate.register(`component.request.handler.secure.authenticate`, authName, async ({ headers, data, publicPort }) => {
             if (!authOptions.hashedPassphrase || !authOptions.hashedPassphraseSalt){
                 logging.write("Request Handler Secure Authenticate",`no authentication needed`);
-                return await delegate.call({ context: "component.request.handler.secure", name: authName }, { headers, data });
+                return await delegate.call({ context: "component.request.handler.secure", name }, { headers, data });
             }
             let { username, passphrase, fromhost, fromport } = headers;
             const sessionName = `${username}_${authOptions.publicHost}_${authOptions.publicPort}`;
@@ -51,7 +53,7 @@ module.exports = {
                     const { publicKey, privateKey } = generateKeys(results.hashedPassphrase);
                     headers.token = encryptToBase64Str(utils.getJSONString({ username , fromhost, fromport }), publicKey);
                     headers.encryptionkey = stringToBase64(publicKey);
-                    return await delegate.call({ context: "component.request.handler.secure", name: authName}, { headers, data, privateKey, hashedPassphrase: results.hashedPassphrase });
+                    return await delegate.call({ context: "component.request.handler.secure", name }, { headers, data, privateKey, hashedPassphrase: results.hashedPassphrase });
                 }
             }
             logging.write("Request Handler Secure Authenticate",`failed to authenticate ${sessionName}.`);
@@ -60,7 +62,6 @@ module.exports = {
         });
 
         requestHandlerUser.handle(options);
-        const name = `${options.publicPort}${options.path}`;
         delegate.register(`component.request.handler.secure.authenticate`, name, async ({ headers, data }) => {
             return await delegate.call({ context: "component.request.handler.secure", name }, { headers, data });
         });
