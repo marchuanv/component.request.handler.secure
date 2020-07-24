@@ -1,4 +1,4 @@
-const requestHandlerLogin = require("./component.request.handler.secure.authenticate.js");
+const requestHandlerAuthenticate = require("./component.request.handler.secure.authenticate.js");
 const delegate = require("component.delegate");
 const utils = require("utils");
 const logging = require("logging");
@@ -19,7 +19,7 @@ logging.config.add("Request Handler Secure Authenticate");
 
     //Secure
     const { hashedPassphrase, hashedPassphraseSalt } = utils.hashPassphrase("secure1");
-    await requestHandlerLogin.handle({
+    await requestHandlerAuthenticate.handle({
         privateHost: "localhost",
         privatePort: 3000,
         publicHost: "localhost",
@@ -28,7 +28,7 @@ logging.config.add("Request Handler Secure Authenticate");
         hashedPassphrase,
         hashedPassphraseSalt
     });
-    await requestHandlerLogin.handle({
+    await requestHandlerAuthenticate.handle({
         privateHost: "localhost",
         privatePort: 4000,
         publicHost: "localhost",
@@ -39,7 +39,7 @@ logging.config.add("Request Handler Secure Authenticate");
     });
 
     //Unsecure
-    await requestHandlerLogin.handle({
+    await requestHandlerAuthenticate.handle({
         privateHost: "localhost",
         privatePort: 5000,
         publicHost: "localhost",
