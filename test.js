@@ -3,13 +3,23 @@ const delegate = require("component.delegate");
 const utils = require("utils");
 ( async() => {
 
-    delegate.register("component.request.handler.secure", "secure", () => {
+    delegate.register("component.request.handler.secure", "3000/test", () => {
         let statusMessage = "Success";
         return { 
-            headers: { "Content-Type":"text/plain", "Content-Length": Buffer.byteLength(statusMessage) },
+            headers: { "Content-Type":"text/plain" },
             statusCode: 200, 
             statusMessage,
             data: statusMessage
+        };
+    });
+
+    delegate.register("component.request.handler.secure", "3000/authenticate", () => {
+        let statusMessage = "Success";
+        return { 
+            headers: { "Content-Type":"text/plain" },
+            statusCode: 200, 
+            statusMessage,
+            data: "authenticated"
         };
     });
 
