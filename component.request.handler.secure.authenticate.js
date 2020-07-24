@@ -30,7 +30,6 @@ module.exports = {
             throw new Error("invalid options, the authenticate path is reserved.");
         }
 
-
         const authOptions = JSON.parse(JSON.stringify(options));
         authOptions.path = "/authenticate";
 
