@@ -39,10 +39,6 @@ module.exports = {
         const name = `${options.publicPort}${options.path}`;
 
         delegate.register(`component.request.handler.secure.authenticate`, authName, async ({ headers, data, publicPort }) => {
-            if (!authOptions.hashedPassphrase || !authOptions.hashedPassphraseSalt){
-                logging.write("Request Handler Secure Authenticate",`no authentication needed`);
-                return await delegate.call({ context: "component.request.handler.secure", name }, { headers, data, publicPort });
-            }
             let { username, passphrase, fromhost, fromport } = headers;
             const sessionName = `${username}_${authOptions.publicHost}_${authOptions.publicPort}`;
             if (passphrase){
