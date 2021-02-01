@@ -40,7 +40,7 @@ module.exports = {
 
         delegate.register(`component.request.handler.secure.authenticate`, authName, async ({ headers, data, port }) => {
             let { username, passphrase, fromhost, fromport } = headers;
-            const sessionName = `${username}_${authOptions.publicHost}_${port}`;
+            const sessionName = `${username}_${authOptions.host}_${port}`;
             if (passphrase){
                 const results = utils.hashPassphrase(passphrase, authOptions.hashedPassphraseSalt);
                 if (results.hashedPassphrase ===  authOptions.hashedPassphrase){
