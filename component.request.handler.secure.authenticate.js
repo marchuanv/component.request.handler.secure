@@ -35,12 +35,12 @@ module.exports = {
 
         requestHandlerUser.handle(authOptions);
         
-        const authName = `${authOptions.publicPort}/authenticate`;
-        const name = `${options.publicPort}${options.path}`;
+        const authName = `${authOptions.port}/authenticate`;
+        const name = `${options.port}${options.path}`;
 
-        delegate.register(`component.request.handler.secure.authenticate`, authName, async ({ headers, data, publicPort }) => {
+        delegate.register(`component.request.handler.secure.authenticate`, authName, async ({ headers, data, port }) => {
             let { username, passphrase, fromhost, fromport } = headers;
-            const sessionName = `${username}_${authOptions.publicHost}_${authOptions.publicPort}`;
+            const sessionName = `${username}_${authOptions.publicHost}_${port}`;
             if (passphrase){
                 const results = utils.hashPassphrase(passphrase, authOptions.hashedPassphraseSalt);
                 if (results.hashedPassphrase ===  authOptions.hashedPassphrase){
@@ -48,7 +48,7 @@ module.exports = {
                     const { publicKey, privateKey } = generateKeys(results.hashedPassphrase);
                     headers.token = encryptToBase64Str(utils.getJSONString({ username , fromhost, fromport }), publicKey);
                     headers.encryptionkey = stringToBase64(publicKey);
-                    return await delegate.call({ context: "component.request.handler.secure", name }, { headers, data, privateKey, hashedPassphrase: results.hashedPassphrase, publicPort });
+                    return await delegate.call({ context: "component.request.handler.secure", name }, { headers, data, privateKey, hashedPassphrase: results.hashedPassphrase, port });
                 }
             }
             logging.write("Request Handler Secure Authenticate",`failed to authenticate ${sessionName}.`);
@@ -57,8 +57,8 @@ module.exports = {
         });
 
         requestHandlerUser.handle(options);
-        delegate.register(`component.request.handler.secure.authenticate`, name, async ({ headers, data, publicPort }) => {
-            return await delegate.call({ context: "component.request.handler.secure", name }, { headers, data, publicPort });
+        delegate.register(`component.request.handler.secure.authenticate`, name, async ({ headers, data, port }) => {
+            return await delegate.call({ context: "component.request.handler.secure", name }, { headers, data, port });
         });
     }
 };
