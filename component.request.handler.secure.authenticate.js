@@ -29,21 +29,15 @@ module.exports = {
         if (options.path.indexOf("authenticate") > -1){
             throw new Error("invalid options, the authenticate path is reserved.");
         }
-
-        const authOptions = JSON.parse(JSON.stringify(options));
-        authOptions.path = "/authenticate";
-
-        requestHandlerUser.handle(authOptions);
-        
-        const authName = `${authOptions.port}/authenticate`;
         const name = `${options.port}${options.path}`;
-
-        delegate.register(`component.request.handler.secure.authenticate`, authName, async ({ headers, data, port }) => {
+        requestHandlerUser.handle(options);
+        //This is a passthrough the component.request.handler.secure component needs to check the headers for security and decide
+        delegate.register(`component.request.handler.secure.authenticate`, name, async ({ headers, data, port }) => {
             let { username, passphrase, fromhost, fromport } = headers;
-            const sessionName = `${username}_${authOptions.host}_${port}`;
+            const sessionName = `${username}_${options.host}_${port}`;
             if (passphrase){
-                const results = utils.hashPassphrase(passphrase, authOptions.hashedPassphraseSalt);
-                if (results.hashedPassphrase ===  authOptions.hashedPassphrase){
+                const results = utils.hashPassphrase(passphrase, options.hashedPassphraseSalt);
+                if (results.hashedPassphrase ===  options.hashedPassphrase){
                     logging.write("Request Handler Secure Authenticate",`${sessionName} is authenticated.`);
                     const { publicKey, privateKey } = generateKeys(results.hashedPassphrase);
                     headers.token = encryptToBase64Str(utils.getJSONString({ username , fromhost, fromport }), publicKey);
@@ -51,15 +45,13 @@ module.exports = {
                     return await delegate.call({ context: "component.request.handler.secure", name }, { headers, data, privateKey, hashedPassphrase: results.hashedPassphrase, port });
                 }
             }
-            logging.write("Request Handler Secure Authenticate",`failed to authenticate ${sessionName}.`);
-            const statusMessage = "Unauthorised";
-            return { headers: { "Content-Type":"text/plain" }, statusCode: 401, statusMessage, data: statusMessage };
-        });
-
-        requestHandlerUser.handle(options);
-        //This is a passthrough the component.request.handler.secure component needs to check the headers for security and decide
-        delegate.register(`component.request.handler.secure.authenticate`, name, async ({ headers, data, port }) => {
-            return await delegate.call({ context: "component.request.handler.secure", name }, { headers, data, port });
+            if (options.hashedPassphrase || options.hashedPassphraseSalt){ //if the handler was registered to be secured
+                logging.write("Request Handler Secure Authenticate",`failed to authenticate ${sessionName}.`);
+                const statusMessage = "Unauthorised";
+                return { headers: { "Content-Type":"text/plain" }, statusCode: 401, statusMessage, data: statusMessage };
+            } else {
+                return await delegate.call({ context: "component.request.handler.secure", name }, { headers, data, port });
+            }
         });
     }
 };

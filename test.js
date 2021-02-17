@@ -6,7 +6,7 @@ const logging = require("logging");
 logging.config.add("Request Handler Secure Authenticate");
 ( async() => {
 
-    delegate.register("component.request.handler.secure", "3000/test", ({ privateKey, hashedPassphrase }) => {
+    delegate.register("component.request.handler.secure", "3000/secure", ({ headers, privateKey, hashedPassphrase }) => {
         return { 
             headers: { "Content-Type":"text/plain" },
             statusCode: 200, 
@@ -14,7 +14,7 @@ logging.config.add("Request Handler Secure Authenticate");
             data: "Success"
         };
     });
-    delegate.register("component.request.handler.secure", "4000/test", ({ privateKey, hashedPassphrase }) => {
+    delegate.register("component.request.handler.secure", "4000/unsecure", ({ privateKey, hashedPassphrase }) => {
         return { 
             headers: { "Content-Type":"text/plain" },
             statusCode: 200, 
@@ -28,25 +28,24 @@ logging.config.add("Request Handler Secure Authenticate");
     await requestHandlerAuthenticate.handle({
         host: "localhost",
         port: 3000,
-        path: "/test",
+        path: "/secure",
         hashedPassphrase,
         hashedPassphraseSalt
     });
-
     //Unsecure
     await requestHandlerAuthenticate.handle({
         host: "localhost",
         port: 4000,
-        path: "/test"
+        path: "/unsecure"
     });
 
     //Authentication Required Success Test
     let results = await request.send({ 
         host: "localhost",
         port: 3000,
-        path: "/authenticate",
+        path: "/secure",
         method: "GET",
-        headers: { 
+        headers: {
             username: "marchuanv",
             fromhost: "localhost",
             fromport: 6000,
@@ -63,7 +62,7 @@ logging.config.add("Request Handler Secure Authenticate");
     results = await request.send({ 
         host: "localhost",
         port: 3000,
-        path: "/authenticate",
+        path: "/secure",
         method: "GET",
         headers: { 
             username: "marchuanv",
@@ -82,7 +81,7 @@ logging.config.add("Request Handler Secure Authenticate");
     results = await request.send({ 
         host: "localhost",
         port: 4000,
-        path: "/test",
+        path: "/unsecure",
         method: "GET",
         headers: { 
             username: "marchuanv",
