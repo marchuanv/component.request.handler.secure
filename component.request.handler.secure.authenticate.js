@@ -57,6 +57,7 @@ module.exports = {
         });
 
         requestHandlerUser.handle(options);
+        //This is a passthrough the component.request.handler.secure component needs to check the headers for security and decide
         delegate.register(`component.request.handler.secure.authenticate`, name, async ({ headers, data, port }) => {
             return await delegate.call({ context: "component.request.handler.secure", name }, { headers, data, port });
         });

@@ -14,6 +14,14 @@ logging.config.add("Request Handler Secure Authenticate");
             data: "Success"
         };
     });
+    delegate.register("component.request.handler.secure", "4000/test", ({ privateKey, hashedPassphrase }) => {
+        return { 
+            headers: { "Content-Type":"text/plain" },
+            statusCode: 200, 
+            statusMessage: "Success",
+            data: "Success"
+        };
+    });
 
     //Secure
     const { hashedPassphrase, hashedPassphraseSalt } = utils.hashPassphrase("secure1");
@@ -71,7 +79,7 @@ logging.config.add("Request Handler Secure Authenticate");
     }
 
     //Authentication Not Required Test
-    await request.send({
+    results = await request.send({ 
         host: "localhost",
         port: 4000,
         path: "/test",
@@ -84,6 +92,11 @@ logging.config.add("Request Handler Secure Authenticate");
         data: "",
         retryCount: 1
     });
+    if (results.statusCode !== 200){
+        throw "Authentication Not Required Test Failed";
+    }
+
+    process.exit();
 
 })().catch((err)=>{
     console.error(err);
