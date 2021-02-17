@@ -7,14 +7,11 @@ logging.config.add("Request Handler Secure Authenticate");
 ( async() => {
 
     delegate.register("component.request.handler.secure", "3000/test", ({ privateKey, hashedPassphrase }) => {
-        logging.write("Request Handler Secure Authenticate",`PrivateKey: ${privateKey}`);
-        logging.write("Request Handler Secure Authenticate",`HasedPassphrase: ${hashedPassphrase}`);
-        let statusMessage = "Success";
         return { 
             headers: { "Content-Type":"text/plain" },
             statusCode: 200, 
-            statusMessage,
-            data: statusMessage
+            statusMessage: "Success",
+            data: "Success"
         };
     });
 
