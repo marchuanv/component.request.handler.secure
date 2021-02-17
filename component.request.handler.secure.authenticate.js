@@ -45,13 +45,7 @@ module.exports = {
                     return await delegate.call({ context: "component.request.handler.secure", name }, { headers, data, privateKey, hashedPassphrase: results.hashedPassphrase, port });
                 }
             }
-            if (options.hashedPassphrase || options.hashedPassphraseSalt){ //if the handler was registered to be secured
-                logging.write("Request Handler Secure Authenticate",`failed to authenticate ${sessionName}.`);
-                const statusMessage = "Unauthorised";
-                return { headers: { "Content-Type":"text/plain" }, statusCode: 401, statusMessage, data: statusMessage };
-            } else {
-                return await delegate.call({ context: "component.request.handler.secure", name }, { headers, data, port });
-            }
+            return await delegate.call({ context: "component.request.handler.secure", name }, { headers, data, port });
         });
     }
 };
