@@ -42,15 +42,8 @@ module.exports = {
                     const { publicKey, privateKey } = generateKeys(results.hashedPassphrase);
                     const token = encryptToBase64Str(utils.getJSONString({ username , fromhost, fromport }), publicKey);
                     const encryptionkey = stringToBase64(publicKey);
-                    return await delegate.call({ context: "component.request.handler.secure", name }, { 
-                        headers, 
-                        data, 
-                        privateKey, 
-                        hashedPassphrase: results.hashedPassphrase, 
-                        port, 
-                        encryptionkey,
-                        token
-                    });
+                    const hashedPassphrase = results.hashedPassphrase;
+                    return await delegate.call({ context: "component.request.handler.secure", name }, { headers, data, privateKey, hashedPassphrase, port, encryptionkey, token });
                 }
             }
             return await delegate.call({ context: "component.request.handler.secure", name }, { headers, data, port });
