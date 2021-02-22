@@ -1,28 +1,8 @@
 const utils = require("utils");
-const crypto = require("crypto");
 const requestHandlerUser = require("component.request.handler.user");
 const delegate = require("component.delegate");
 const logging = require("logging");
 logging.config.add("Request Handler Secure Authenticate");
-
-const stringToBase64 = (str) => {
-    return Buffer.from(str, "utf8").toString("base64");
-}
-
-const encryptToBase64Str = (dataStr, encryptionkey) => {
-    const dataBuf = Buffer.from(dataStr, "utf8");
-    return crypto.publicEncrypt( { 
-        key: encryptionkey,
-        padding: crypto.constants.RSA_PKCS1_PADDING
-    }, dataBuf).toString("base64");
-}
-
-const generateKeys = (passphrase) => {
-    return crypto.generateKeyPairSync('rsa', { modulusLength: 4096,
-        publicKeyEncoding: { type: 'spki', format: 'pem'},
-        privateKeyEncoding: { type: 'pkcs8', format: 'pem', cipher: 'aes-256-cbc', passphrase }
-    });
-};
 
 module.exports = { 
     handle: (options) => {
@@ -39,9 +19,9 @@ module.exports = {
                 const results = utils.hashPassphrase(passphrase, options.hashedPassphraseSalt);
                 if (results.hashedPassphrase ===  options.hashedPassphrase){
                     logging.write("Request Handler Secure Authenticate",`${sessionName} is authenticated.`);
-                    const { publicKey, privateKey } = generateKeys(results.hashedPassphrase);
-                    const token = encryptToBase64Str(utils.getJSONString({ username , fromhost, fromport }), publicKey);
-                    const encryptionkey = stringToBase64(publicKey);
+                    const { publicKey, privateKey } = utils.generatePublicPrivateKeys(results.hashedPassphrase);
+                    const token = utils.encryptToBase64Str(utils.getJSONString({ username , fromhost, fromport }), publicKey);
+                    const encryptionkey = utils.stringToBase64(publicKey);
                     const hashedPassphrase = results.hashedPassphrase;
                     return await delegate.call({ context: "component.request.handler.secure", name }, { headers, data, privateKey, hashedPassphrase, port, encryptionkey, token });
                 }
