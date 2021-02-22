@@ -41,8 +41,15 @@ module.exports = {
                     logging.write("Request Handler Secure Authenticate",`${sessionName} is authenticated.`);
                     const { publicKey, privateKey } = generateKeys(results.hashedPassphrase);
                     headers.token = encryptToBase64Str(utils.getJSONString({ username , fromhost, fromport }), publicKey);
-                    headers.encryptionkey = stringToBase64(publicKey);
-                    return await delegate.call({ context: "component.request.handler.secure", name }, { headers, data, privateKey, hashedPassphrase: results.hashedPassphrase, port });
+                    const encryptionkey = stringToBase64(publicKey);
+                    return await delegate.call({ context: "component.request.handler.secure", name }, { 
+                        headers, 
+                        data, 
+                        privateKey, 
+                        hashedPassphrase: results.hashedPassphrase, 
+                        port, 
+                        encryptionkey 
+                    });
                 }
             }
             return await delegate.call({ context: "component.request.handler.secure", name }, { headers, data, port });
