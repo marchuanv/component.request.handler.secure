@@ -5,7 +5,7 @@ const logging = require("logging");
 logging.config.add("Request Handler Secure");
 
 module.exports = { 
-    handle: (options) => {
+    handle: (context, options) => {
         const name = `${options.port}${options.path}`;
         requestHandlerUser.handle("component.request.handler.secure", options);
         delegate.register("component.request.handler.secure", name, async ({ session, headers, data }) => {
@@ -70,7 +70,7 @@ module.exports = {
                     data: "passphrase or token required"
                 };
             }
-            const res = await delegate.call({ context: "component.request.handler.secure", name }, { session, data });
+            const res = await delegate.call({ context, name }, { session, data });
             if (res.headers){
                 res.headers.token = session.token;
                 res.headers.encryptionkey = session.encryptionkey.local;

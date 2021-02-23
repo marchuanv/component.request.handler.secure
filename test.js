@@ -10,9 +10,8 @@ logging.config.add("Request Handler Secure");
 
     let securedRequest = { name: "localhost", port: 3000, path: "/secure" };
     let unsecuredRequest = { name: "localhost", port: 4000, path: "/unsecure" };
-    let context = "component.request.handler.secure";
     
-    delegate.register(context, `${securedRequest.port}${securedRequest.path}`, ({  headers, session, data }) => {
+    delegate.register("secure", `${securedRequest.port}${securedRequest.path}`, ({  headers, session, data }) => {
         if (session.token){
             return { 
                 headers: { "Content-Type":"text/plain" },
@@ -29,7 +28,7 @@ logging.config.add("Request Handler Secure");
         };
     });
 
-    delegate.register(context, `${unsecuredRequest.port}${unsecuredRequest.path}`, ({ headers, session, data }) => {
+    delegate.register("unsecure", `${unsecuredRequest.port}${unsecuredRequest.path}`, ({ headers, session, data }) => {
         return { 
             headers: { "Content-Type":"text/plain" },
             statusCode: 200, 
@@ -40,7 +39,7 @@ logging.config.add("Request Handler Secure");
 
     //Secure
     const { hashedPassphrase, hashedPassphraseSalt } = utils.hashPassphrase("secure1");
-    await requestHandlerSecure.handle({
+    await requestHandlerSecure.handle("secure", {
         host: securedRequest.name,
         port: securedRequest.port,
         path: securedRequest.path,
@@ -49,7 +48,7 @@ logging.config.add("Request Handler Secure");
     });
 
     //Unsecure
-    await requestHandlerSecure.handle({
+    await requestHandlerSecure.handle("unsecure", {
         host: unsecuredRequest.name,
         port: unsecuredRequest.port,
         path: unsecuredRequest.path,
