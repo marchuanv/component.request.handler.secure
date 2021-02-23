@@ -10,13 +10,9 @@ module.exports = {
         requestHandlerUser.handle("component.request.handler.secure.authenticate", options);
         //This is a passthrough the component.request.handler.secure component needs to check the headers for security and decide
         delegate.register("component.request.handler.secure.authenticate", name, async ({ session, headers, data }) => {
-            let { passphrase, encryptionkey, token } = headers;
+            let { passphrase, token } = headers;
             delete headers["passphrase"];
-            delete headers["encryptionkey"];
             delete headers["token"];
-            if (session.encryptionkey && !session.encryptionkey.remote){
-                session.encryptionkey.remote = encryptionkey;
-            }
             if (passphrase) {
                 const results = utils.hashPassphrase(passphrase, options.hashedPassphraseSalt);
                 if (results.hashedPassphrase ===  options.hashedPassphrase){
@@ -25,10 +21,6 @@ module.exports = {
                     session.publicKey = publicKey;
                     session.privateKey = privateKey;
                     session.token = utils.encryptToBase64Str(utils.getJSONString({ username: session.username, fromhost: session.fromhost, fromport: session.fromport }), publicKey);
-                    session.encryptionkey = {
-                        local: utils.stringToBase64(publicKey),
-                        remote: encryptionkey
-                    };
                     session.hashedPassphrase = results.hashedPassphrase;
                     token = session.token;
                 } else {
@@ -60,10 +52,9 @@ module.exports = {
                     data: "passphrase or token required"
                 };
             }
-            const res = await delegate.call({ context: "component.request.handler.secure", name }, { session, data });
+            const res = await delegate.call({ context: "component.request.handler.secure", name }, { session, headers, data });
             if (res.headers){
                 res.headers.token = session.token;
-                res.headers.encryptionkey = session.encryptionkey.local;
                 return res;
             }
             return res;
