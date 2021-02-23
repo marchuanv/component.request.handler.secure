@@ -66,6 +66,7 @@ module.exports = {
                 res.headers.encryptionkey = session.encryptionkey.local;
                 return res;
             }
+            return res;
         });
     }
 };
