@@ -1,8 +1,8 @@
 {
-  "name": "component.request.handler.secure.authenticate",
+  "name": "component.request.handler.secure",
   "version": "1.0.0",
   "description": "",
-  "main": "component.request.handler.secure.authenticate.js",
+  "main": "component.request.handler.secure.js",
   "engines": {
     "node": "12.16.1",
     "npm": "6.13.4"
@@ -12,14 +12,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/marchuanv/component.request.handler.secure.authenticate.git"
+    "url": "git+ssh://git@github.com/marchuanv/component.request.handler.secure.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/marchuanv/component.request.handler.secure.authenticate/issues"
+    "url": "https://github.com/marchuanv/component.request.handler.secure/issues"
   },
-  "homepage": "https://github.com/marchuanv/component.request.handler.secure.authenticate#readme",
+  "homepage": "https://github.com/marchuanv/component.request.handler.secure#readme",
   "dependencies": {
     "component.request.handler.user": "git+https://github.com/marchuanv/component.request.handler.user.git",
     "logging": "git+https://github.com/marchuanv/logging.git",

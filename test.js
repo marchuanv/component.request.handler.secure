@@ -1,10 +1,10 @@
-const requestHandlerAuthenticate = require("./component.request.handler.secure.authenticate.js");
+const requestHandlerSecure = require("./component.request.handler.secure.js");
 const delegate = require("component.delegate");
 const utils = require("utils");
 const unsecureRequest = require("component.request.unsecure");
 const secureRequest = require("component.request.secure");
 const logging = require("logging");
-logging.config.add("Request Handler Secure Authenticate");
+logging.config.add("Request Handler Secure");
 
 ( async() => {
 
@@ -40,7 +40,7 @@ logging.config.add("Request Handler Secure Authenticate");
 
     //Secure
     const { hashedPassphrase, hashedPassphraseSalt } = utils.hashPassphrase("secure1");
-    await requestHandlerAuthenticate.handle({
+    await requestHandlerSecure.handle({
         host: securedRequest.name,
         port: securedRequest.port,
         path: securedRequest.path,
@@ -49,7 +49,7 @@ logging.config.add("Request Handler Secure Authenticate");
     });
 
     //Unsecure
-    await requestHandlerAuthenticate.handle({
+    await requestHandlerSecure.handle({
         host: unsecuredRequest.name,
         port: unsecuredRequest.port,
         path: unsecuredRequest.path,
