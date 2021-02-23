@@ -7,9 +7,9 @@ logging.config.add("Request Handler Secure Authenticate");
 module.exports = { 
     handle: (options) => {
         const name = `${options.port}${options.path}`;
-        requestHandlerUser.handle(options);
+        requestHandlerUser.handle("component.request.handler.secure.authenticate", options);
         //This is a passthrough the component.request.handler.secure component needs to check the headers for security and decide
-        delegate.register(`component.request.handler.secure.authenticate`, name, async ({ session, headers, data }) => {
+        delegate.register("component.request.handler.secure.authenticate", name, async ({ session, headers, data }) => {
             let { passphrase, encryptionkey, token } = headers;
             delete headers["passphrase"];
             delete headers["encryptionkey"];
