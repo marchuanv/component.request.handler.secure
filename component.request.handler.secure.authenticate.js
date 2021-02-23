@@ -13,7 +13,10 @@ module.exports = {
         requestHandlerUser.handle(options);
         //This is a passthrough the component.request.handler.secure component needs to check the headers for security and decide
         delegate.register(`component.request.handler.secure.authenticate`, name, async ({ session, headers, data }) => {
-            let { passphrase, encryptionkey } = headers;
+            let { passphrase, encryptionkey, token } = headers;
+            delete headers["passphrase"];
+            delete headers["encryptionkey"];
+            delete headers["token"];
             if (passphrase){
                 const results = utils.hashPassphrase(passphrase, options.hashedPassphraseSalt);
                 if (results.hashedPassphrase ===  options.hashedPassphrase){
@@ -39,11 +42,19 @@ module.exports = {
                     data: ""
                 };
             }
-            if (!session.encryptionkey.remote){
+            if (session.token !== token){
+                return {
+                    headers: { 
+                        "Content-Type":"text/plain"
+                    },
+                    statusCode: 401,
+                    statusMessage:"Unauthorised",
+                    data: ""
+                };
+            }
+            if (session.encryptionkey && !session.encryptionkey.remote){
                 session.encryptionkey.remote = encryptionkey;
             }
-            delete headers["passphrase"];
-            delete headers["encryptionkey"];
             return await delegate.call({ context: "component.request.handler.secure", name }, { session, headers, data });
         });
     }

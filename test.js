@@ -79,22 +79,6 @@ logging.config.add("Request Handler Secure Authenticate");
         throw "Secure Request Authentication Required Success Test";
     }
 
-    //Secure Request Authentication Required Fail Test
-    results = await secureRequest.send({ 
-        host: securedRequest.name,
-        port: securedRequest.port,
-        path: securedRequest.path,
-        method: "GET",
-        username: "marchuanv",
-        fromhost: "localhost",
-        fromport: 6000,
-        passphrase: "secure2",
-        data: "more sensitive data"
-    });
-    if (results.statusCode !== 401 || results.statusMessage !== "Failed"){
-        throw "Secure Request Authentication Required Fail Test";
-    }
-
     //Authentication Not Required Test
     results = await unsecureRequest.send({ 
         host: securedRequest.name,
