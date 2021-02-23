@@ -86,7 +86,7 @@ logging.config.add("Request Handler Secure Authenticate");
         throw "Authentication Not Required Test Failed";
     }
 
-    process.exit();
+    //process.exit();
 
 })().catch((err)=>{
     console.error(err);
