@@ -1,7 +1,8 @@
 const requestHandlerAuthenticate = require("./component.request.handler.secure.authenticate.js");
 const delegate = require("component.delegate");
 const utils = require("utils");
-const request = require("component.request");
+const unsecureRequest = require("component.request.unsecure");
+const secureRequest = require("component.request.secure");
 const logging = require("logging");
 logging.config.add("Request Handler Secure Authenticate");
 
@@ -9,8 +10,9 @@ logging.config.add("Request Handler Secure Authenticate");
 
     let securedRequest = { name: "localhost", port: 3000, path: "/secure" };
     let unsecuredRequest = { name: "localhost", port: 4000, path: "/unsecure" };
-
-    delegate.register("component.request.handler.secure", `${securedRequest.port}${securedRequest.path}`, ({ privateKey, hashedPassphrase, token }) => {
+    let context = "component.request.handler.secure";
+    
+    delegate.register(context, `${securedRequest.port}${securedRequest.path}`, ({  headers, session, data }) => {
         if (token && privateKey && hashedPassphrase){
             return { 
                 headers: { "Content-Type":"text/plain" },
@@ -26,7 +28,8 @@ logging.config.add("Request Handler Secure Authenticate");
             data: "Failed"
         };
     });
-    delegate.register("component.request.handler.secure", `${unsecuredRequest.port}${unsecuredRequest.path}`, ({ privateKey, hashedPassphrase, token }) => {
+
+    delegate.register(context, `${unsecuredRequest.port}${unsecuredRequest.path}`, ({ headers, session, data }) => {
         if (token){
             return {
                 headers: { "Content-Type":"text/plain" },
@@ -52,6 +55,7 @@ logging.config.add("Request Handler Secure Authenticate");
         hashedPassphrase,
         hashedPassphraseSalt
     });
+
     //Unsecure
     await requestHandlerAuthenticate.handle({
         host: unsecuredRequest.name,
@@ -59,27 +63,24 @@ logging.config.add("Request Handler Secure Authenticate");
         path: unsecuredRequest.path,
     });
 
-    //Authentication Required Success Test
-    let results = await request.send({ 
+    //Secure Request Authentication Required Success Test
+    let results = await secureRequest.send({ 
         host: securedRequest.name,
         port: securedRequest.port,
         path: securedRequest.path,
         method: "GET",
-        headers: {
-            username: "marchuanv",
-            fromhost: "localhost",
-            fromport: 6000,
-            passphrase: "secure1"
-        }, 
-        data: "",
-        retryCount: 1
+        username: "marchuanv",
+        fromhost: "localhost",
+        fromport: 6000,
+        passphrase: "secure1",
+        data: ""
     });
     if (results.statusCode !== 200 || results.statusMessage === "Failed"){
-        throw "Authentication Required Success Test Failed";
+        throw "Secure Request Authentication Required Success Test";
     }
 
-    //Authentication Required Fail Test
-    results = await request.send({ 
+    //Secure Request Authentication Required Fail Test
+    results = await secureRequest.send({ 
         host: securedRequest.name,
         port: securedRequest.port,
         path: securedRequest.path,
@@ -94,11 +95,11 @@ logging.config.add("Request Handler Secure Authenticate");
         retryCount: 1
     });
     if (results.statusCode !== 401 || results.statusMessage !== "Failed"){
-        throw "Authentication Required Fail Test Failed";
+        throw "Secure Request Authentication Required Fail Test";
     }
 
     //Authentication Not Required Test
-    results = await request.send({ 
+    results = await unsecureRequest.send({ 
         host: unsecuredRequest.name,
         port: unsecuredRequest.port,
         path: unsecuredRequest.path,

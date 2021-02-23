@@ -12,21 +12,28 @@ module.exports = {
         const name = `${options.port}${options.path}`;
         requestHandlerUser.handle(options);
         //This is a passthrough the component.request.handler.secure component needs to check the headers for security and decide
-        delegate.register(`component.request.handler.secure.authenticate`, name, async ({ headers, data, port }) => {
-            let { username, passphrase, fromhost, fromport } = headers;
-            const sessionName = `${username}_${options.host}_${port}`;
+        delegate.register(`component.request.handler.secure.authenticate`, name, async ({ session, headers, data }) => {
+            let { passphrase } = headers;
             if (passphrase){
+                delete headers["passphrase"];
                 const results = utils.hashPassphrase(passphrase, options.hashedPassphraseSalt);
                 if (results.hashedPassphrase ===  options.hashedPassphrase){
-                    logging.write("Request Handler Secure Authenticate",`${sessionName} is authenticated.`);
+                    logging.write("Request Handler Secure Authenticate",`session ${session.Id} is authenticated.`);
                     const { publicKey, privateKey } = utils.generatePublicPrivateKeys(results.hashedPassphrase);
-                    const token = utils.encryptToBase64Str(utils.getJSONString({ username , fromhost, fromport }), publicKey);
-                    const encryptionkey = utils.stringToBase64(publicKey);
-                    const hashedPassphrase = results.hashedPassphrase;
-                    return await delegate.call({ context: "component.request.handler.secure", name }, { headers, data, privateKey, hashedPassphrase, port, encryptionkey, token });
+                    session.publicKey = publicKey;
+                    session.privateKey = privateKey;
+                    session.token = utils.encryptToBase64Str(utils.getJSONString(session), publicKey);
+                    session.encryptionkey = {
+                        local: utils.stringToBase64(publicKey),
+                        remote: headers.encryptionkey
+                    };
+                    delete headers["encryptionkey"];
+                    session.hashedPassphrase = results.hashedPassphrase;
+                    return await delegate.call({ context: "component.request.handler.secure", name }, { session, headers, data });
                 }
             }
-            return await delegate.call({ context: "component.request.handler.secure", name }, { headers, data, port });
+            delete headers["encryptionkey"];
+            return await delegate.call({ context: "component.request.handler.secure", name }, { session, headers, data });
         });
     }
 };
