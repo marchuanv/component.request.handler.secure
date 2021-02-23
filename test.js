@@ -13,7 +13,7 @@ logging.config.add("Request Handler Secure Authenticate");
     let context = "component.request.handler.secure";
     
     delegate.register(context, `${securedRequest.port}${securedRequest.path}`, ({  headers, session, data }) => {
-        if (token && privateKey && hashedPassphrase){
+        if (session.token){
             return { 
                 headers: { "Content-Type":"text/plain" },
                 statusCode: 200, 
@@ -30,7 +30,7 @@ logging.config.add("Request Handler Secure Authenticate");
     });
 
     delegate.register(context, `${unsecuredRequest.port}${unsecuredRequest.path}`, ({ headers, session, data }) => {
-        if (token){
+        if (session.token){
             return {
                 headers: { "Content-Type":"text/plain" },
                 statusCode: 500, 
@@ -73,7 +73,7 @@ logging.config.add("Request Handler Secure Authenticate");
         fromhost: "localhost",
         fromport: 6000,
         passphrase: "secure1",
-        data: ""
+        data: "sensitive data"
     });
     if (results.statusCode !== 200 || results.statusMessage === "Failed"){
         throw "Secure Request Authentication Required Success Test";
@@ -85,14 +85,11 @@ logging.config.add("Request Handler Secure Authenticate");
         port: securedRequest.port,
         path: securedRequest.path,
         method: "GET",
-        headers: { 
-            username: "marchuanv",
-            fromhost: "localhost",
-            fromport: 6000,
-            passphrase: "secure2"
-        }, 
-        data: "",
-        retryCount: 1
+        username: "marchuanv",
+        fromhost: "localhost",
+        fromport: 6000,
+        passphrase: "secure2",
+        data: "more sensitive data"
     });
     if (results.statusCode !== 401 || results.statusMessage !== "Failed"){
         throw "Secure Request Authentication Required Fail Test";
@@ -100,17 +97,14 @@ logging.config.add("Request Handler Secure Authenticate");
 
     //Authentication Not Required Test
     results = await unsecureRequest.send({ 
-        host: unsecuredRequest.name,
-        port: unsecuredRequest.port,
-        path: unsecuredRequest.path,
+        host: securedRequest.name,
+        port: securedRequest.port,
+        path: securedRequest.path,
         method: "GET",
-        headers: { 
-            username: "marchuanv",
-            fromhost: "localhost",
-            fromport: 6000
-        }, 
-        data: "",
-        retryCount: 1
+        username: "marchuanv",
+        fromhost: "localhost",
+        fromport: 6000,
+        data: ""
     });
     if (results.statusCode !== 200){
         throw "Authentication Not Required Test Failed";
