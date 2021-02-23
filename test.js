@@ -71,7 +71,7 @@ logging.config.add("Request Handler Secure Authenticate");
         throw "Secure Request Authentication Required Success Test";
     }
 
-    //Authentication Not Required Test
+    //Authentication Required Test
     results = await unsecureRequest.send({ 
         host: unsecuredRequest.name,
         port: unsecuredRequest.port,
@@ -82,11 +82,11 @@ logging.config.add("Request Handler Secure Authenticate");
         fromport: 6000,
         data: ""
     });
-    if (results.statusCode !== 200){
-        throw "Authentication Not Required Test Failed";
+    if (results.statusCode !== 401){
+        throw "Authentication Required Test Failed";
     }
 
-    //process.exit();
+    process.exit();
 
 })().catch((err)=>{
     console.error(err);
