@@ -70,7 +70,7 @@ module.exports = {
                     data: "passphrase or token required"
                 };
             }
-            const res = await delegate.call({ context, name }, { session, data });
+            const res = await delegate.call({ context, name }, { data });
             if (res.headers){
                 res.headers.token = session.token;
                 res.headers.encryptionkey = session.encryptionkey.local;
