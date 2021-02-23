@@ -30,14 +30,6 @@ logging.config.add("Request Handler Secure Authenticate");
     });
 
     delegate.register(context, `${unsecuredRequest.port}${unsecuredRequest.path}`, ({ headers, session, data }) => {
-        if (session.token){
-            return {
-                headers: { "Content-Type":"text/plain" },
-                statusCode: 500, 
-                statusMessage: "Failed",
-                data: "Failed"
-            };
-        }
         return { 
             headers: { "Content-Type":"text/plain" },
             statusCode: 200, 
@@ -81,9 +73,9 @@ logging.config.add("Request Handler Secure Authenticate");
 
     //Authentication Not Required Test
     results = await unsecureRequest.send({ 
-        host: securedRequest.name,
-        port: securedRequest.port,
-        path: securedRequest.path,
+        host: unsecuredRequest.name,
+        port: unsecuredRequest.port,
+        path: unsecuredRequest.path,
         method: "GET",
         username: "marchuanv",
         fromhost: "localhost",
