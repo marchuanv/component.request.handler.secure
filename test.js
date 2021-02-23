@@ -63,38 +63,38 @@ logging.config.add("Request Handler Secure Authenticate");
         path: unsecuredRequest.path,
     });
 
-    // //Secure Request Authentication Required Success Test
-    // let results = await secureRequest.send({ 
-    //     host: securedRequest.name,
-    //     port: securedRequest.port,
-    //     path: securedRequest.path,
-    //     method: "GET",
-    //     username: "marchuanv",
-    //     fromhost: "localhost",
-    //     fromport: 6000,
-    //     passphrase: "secure1",
-    //     data: "sensitive data"
-    // });
-    // if (results.statusCode !== 200 || results.statusMessage === "Failed"){
-    //     throw "Secure Request Authentication Required Success Test";
-    // }
+    //Secure Request Authentication Required Success Test
+    let results = await secureRequest.send({ 
+        host: securedRequest.name,
+        port: securedRequest.port,
+        path: securedRequest.path,
+        method: "GET",
+        username: "marchuanv",
+        fromhost: "localhost",
+        fromport: 6000,
+        passphrase: "secure1",
+        data: "sensitive data"
+    });
+    if (results.statusCode !== 200 || results.statusMessage === "Failed"){
+        throw "Secure Request Authentication Required Success Test";
+    }
 
-    // //Authentication Not Required Test
-    // results = await unsecureRequest.send({ 
-    //     host: securedRequest.name,
-    //     port: securedRequest.port,
-    //     path: securedRequest.path,
-    //     method: "GET",
-    //     username: "marchuanv",
-    //     fromhost: "localhost",
-    //     fromport: 6000,
-    //     data: ""
-    // });
-    // if (results.statusCode !== 200){
-    //     throw "Authentication Not Required Test Failed";
-    // }
+    //Authentication Not Required Test
+    results = await unsecureRequest.send({ 
+        host: securedRequest.name,
+        port: securedRequest.port,
+        path: securedRequest.path,
+        method: "GET",
+        username: "marchuanv",
+        fromhost: "localhost",
+        fromport: 6000,
+        data: ""
+    });
+    if (results.statusCode !== 200){
+        throw "Authentication Not Required Test Failed";
+    }
 
-    // process.exit();
+    process.exit();
 
 })().catch((err)=>{
     console.error(err);
