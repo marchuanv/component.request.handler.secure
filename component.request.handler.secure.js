@@ -37,7 +37,7 @@ module.exports = {
                     session.token = utils.encryptToBase64Str(utils.getJSONString({ username: session.username, fromhost: session.fromhost, fromport: session.fromport }), publicKey);
                     session.encryptionkey = {
                         local: utils.stringToBase64(publicKey),
-                        remote: encryptionkey
+                        remote: utils.base64ToString(encryptionkey) 
                     };
                     session.hashedPassphrase = results.hashedPassphrase;
                     token = session.token;
@@ -75,7 +75,7 @@ module.exports = {
                 res.headers.token = session.token;
                 res.headers.encryptionkey = session.encryptionkey.local;
                 if (res.data && session.encryptionkey.remote){
-                    const encryptedData = utils.encryptToBase64Str(res.data, utils.base64ToString(session.encryptionkey.remote));
+                    const encryptedData = utils.encryptToBase64Str(res.data, session.encryptionkey.remote);
                     if (encryptedData){
                         res.data = encryptedData;
                     } else {

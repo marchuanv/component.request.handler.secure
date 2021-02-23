@@ -17,7 +17,7 @@ logging.config.add("Request Handler Secure");
                 headers: { "Content-Type":"text/plain" },
                 statusCode: 200, 
                 statusMessage: "Success",
-                data: "Success"
+                data: "Senstive Data From Server"
             };
         }
         return { 
@@ -64,7 +64,7 @@ logging.config.add("Request Handler Secure");
         fromhost: "localhost",
         fromport: 6000,
         passphrase: "secure1",
-        data: "sensitive data"
+        data: "Senstive Data From Client"
     });
     if (results.statusCode !== 200 || results.statusMessage === "Failed"){
         throw "Secure Request Authentication Required Success Test";
