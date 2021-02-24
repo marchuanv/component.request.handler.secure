@@ -11,22 +11,17 @@ module.exports = {
         delegate.register("component.request.handler.secure", name, async ({ session, headers, data }) => {
             const requestUrl = `${options.host}:${options.port}${options.path}`;
             let { passphrase, encryptionkey, token } = headers;
+            encryptionkey = utils.base64ToString(encryptionkey || "");
             delete headers["passphrase"];
             delete headers["encryptionkey"];
             delete headers["token"];
-
             if (session.encryptionkey) {
-                if (encryptionkey){
-                    if (!session.encryptionkey.remote) {
-                        session.encryptionkey.remote = encryptionkey;
-                    }
-                }
+                session.encryptionkey.remote = encryptionkey;
                 if (data){
                     logging.write("Request Handler Secure",`decrypting data received from ${requestUrl}`);
                     data = utils.decryptFromBase64Str(data, session.privateKey, session.hashedPassphrase);
                 }
             }
-           
             if (passphrase) {
                 const results = utils.hashPassphrase(passphrase, options.hashedPassphraseSalt);
                 if (results.hashedPassphrase ===  options.hashedPassphrase){
@@ -37,7 +32,7 @@ module.exports = {
                     session.token = utils.encryptToBase64Str(utils.getJSONString({ username: session.username, fromhost: session.fromhost, fromport: session.fromport }), publicKey);
                     session.encryptionkey = {
                         local: utils.stringToBase64(publicKey),
-                        remote: utils.base64ToString(encryptionkey) 
+                        remote: encryptionkey 
                     };
                     session.hashedPassphrase = results.hashedPassphrase;
                     token = session.token;

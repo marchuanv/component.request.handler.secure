@@ -11,20 +11,12 @@ logging.config.add("Request Handler Secure");
     let securedRequest = { name: "localhost", port: 3000, path: "/secure" };
     let unsecuredRequest = { name: "localhost", port: 4000, path: "/unsecure" };
     
-    delegate.register("secure", `${securedRequest.port}${securedRequest.path}`, ({  headers, session, data }) => {
-        if (session.token){
-            return { 
-                headers: { "Content-Type":"text/plain" },
-                statusCode: 200, 
-                statusMessage: "Success",
-                data: "Senstive Data From Server"
-            };
-        }
+    delegate.register("secure", `${securedRequest.port}${securedRequest.path}`, ({ data }) => {
         return { 
             headers: { "Content-Type":"text/plain" },
-            statusCode: 401, 
-            statusMessage: "Failed",
-            data: "Failed"
+            statusCode: 200, 
+            statusMessage: "Success",
+            data: "Senstive Data From Server"
         };
     });
 
@@ -85,7 +77,7 @@ logging.config.add("Request Handler Secure");
         throw "Authentication Required Test Failed";
     }
 
-    process.exit();
+   //process.exit();
 
 })().catch((err)=>{
     console.error(err);
