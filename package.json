@@ -21,12 +21,12 @@
   },
   "homepage": "https://github.com/marchuanv/component.request.handler.secure#readme",
   "dependencies": {
-    "component.request.handler.user": "git+https://github.com/marchuanv/component.request.handler.user.git",
-    "logging": "git+https://github.com/marchuanv/logging.git",
+    "component": "marchuanv/component",
     "utils": "git+https://github.com/marchuanv/utils.git"
   },
-  "devDependencies": {
-    "component.request.unsecure": "git+https://github.com/marchuanv/component.request.unsecure.git",
-    "component.request.secure": "git+https://github.com/marchuanv/component.request.secure.git"
+  "component": {
+    "host": "localhost",
+    "port": 3000,
+    "subscribers": []
   }
 }
