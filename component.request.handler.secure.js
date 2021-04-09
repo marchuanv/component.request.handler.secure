@@ -2,19 +2,19 @@ const utils = require("utils");
 const component = require("component");
 component.load(module).then( async ({ requestHandlerSecure }) => {
     const { channel } = requestHandlerSecure.config;
-    requestHandlerSecure.subscribe( { channel }, async ({ session, data, headers, route }) => {
+    requestHandlerSecure.subscribe( { channel }, async ({ session, request, headers, route }) => {
         if (route.secure) {
             const requestUrl = `${route.host}:${route.port}${route.path}`;
             let { passphrase, encryptionkey, token } = headers;
             encryptionkey = utils.base64ToString(encryptionkey || "");
-            delete headers["passphrase"];
-            delete headers["encryptionkey"];
-            delete headers["token"];
+            delete request.headers["passphrase"];
+            delete request.headers["encryptionkey"];
+            delete request.headers["token"];
             if (session.encryptionkey) {
                 session.encryptionkey.remote = encryptionkey;
-                if (data){
+                if (request.data){
                     requestHandlerSecure.log(`decrypting data received from ${requestUrl}`);
-                    data = utils.decryptFromBase64Str(data, session.privateKey, session.hashedPassphrase);
+                    request.data = utils.decryptFromBase64Str(request.data, session.privateKey, session.hashedPassphrase);
                 }
             }
             if (passphrase) {
@@ -60,7 +60,7 @@ component.load(module).then( async ({ requestHandlerSecure }) => {
                     data: "passphrase or token required"
                 };
             }
-            const res = await requestHandlerSecure.publish({ name }, { data });
+            const res = await requestHandlerSecure.publish({ channel }, { data: request.data });
             if (res.headers){
                 res.headers.token = session.token;
                 res.headers.encryptionkey = session.encryptionkey.local;
