@@ -59,7 +59,7 @@ component.load(module).then( async ({ requestHandlerSecure }) => {
                     data: "passphrase or token required"
                 };
             }
-            const res = await requestHandlerSecure.publish({ data: request.data });
+            const res = await requestHandlerSecure.publish({ session, data: request.data });
             if (res.headers){
                 res.headers.token = session.token;
                 res.headers.encryptionkey = session.encryptionkey.local;
