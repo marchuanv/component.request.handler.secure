@@ -2,10 +2,10 @@ const utils = require("utils");
 const component = require("component");
 component.load(module).then( async ({ requestHandlerSecure }) => {
     const { channel } = requestHandlerSecure.config;
-    requestHandlerSecure.subscribe( { channel }, async ({ session, request, headers, route }) => {
+    requestHandlerSecure.subscribe( { channel }, async ({ session, request, route }) => {
         if (route.secure) {
             const requestUrl = `${route.host}:${route.port}${route.path}`;
-            let { passphrase, encryptionkey, token } = headers;
+            let { passphrase, encryptionkey, token } = request.headers;
             encryptionkey = utils.base64ToString(encryptionkey || "");
             delete request.headers["passphrase"];
             delete request.headers["encryptionkey"];
