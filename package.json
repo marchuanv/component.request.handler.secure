@@ -26,7 +26,7 @@
   },
   "component": {
     "channel": 3000,
-    "publishers": [
+    "dependencies": [
       { "moduleName": "component.request.handler.route" }
     ]
   }

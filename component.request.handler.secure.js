@@ -1,7 +1,7 @@
 const utils = require("utils");
 const component = require("component");
-component.register(module).then( async ({ requestHandlerSecure }) => {
-    const { channel } = requestHandlerSecure;
+component.load(module).then( async ({ requestHandlerSecure }) => {
+    const { channel } = requestHandlerSecure.config;
     requestHandlerSecure.subscribe( { channel }, async ({ session, data, headers, route }) => {
         const requestUrl = `${route.host}:${route.port}${route.path}`;
         let { passphrase, encryptionkey, token } = headers;
