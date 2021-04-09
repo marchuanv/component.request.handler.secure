@@ -1,8 +1,7 @@
 const utils = require("utils");
 const component = require("component");
 component.load(module).then( async ({ requestHandlerSecure }) => {
-    const { channel } = requestHandlerSecure.config;
-    requestHandlerSecure.subscribe( { channel }, async ({ session, request, route }) => {
+    requestHandlerSecure.subscribe(async ({ session, request, route }) => {
         if (route.secure) {
             const requestUrl = `${route.host}:${route.port}${route.path}`;
             let { passphrase, encryptionkey, token } = request.headers;
@@ -60,7 +59,7 @@ component.load(module).then( async ({ requestHandlerSecure }) => {
                     data: "passphrase or token required"
                 };
             }
-            const res = await requestHandlerSecure.publish({ channel }, { data: request.data });
+            const res = await requestHandlerSecure.publish({ data: request.data });
             if (res.headers){
                 res.headers.token = session.token;
                 res.headers.encryptionkey = session.encryptionkey.local;
