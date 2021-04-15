@@ -1,7 +1,7 @@
 const utils = require("utils");
 const component = require("component");
 component.load(module).then( async ({ requestHandlerSecure }) => {
-    requestHandlerSecure.subscribe(async ({ session, request, route }) => {
+    requestHandlerSecure.receiveDependantComponentNotifications(async ({ session, request, route }) => {
         if (!route.issecure) {  // this module does not handle unsecure routes
             return;
         }
@@ -9,9 +9,10 @@ component.load(module).then( async ({ requestHandlerSecure }) => {
         delete request.headers["passphrase"];
         delete request.headers["encryptionkey"];
         delete request.headers["token"];
-        if (session.lastRequestId !== request.requestId) { // on 2nd or more request
-            //request id will only be the same as the session request id on first request
-            //this module should have given a token to the requester on first request
+
+        //see if the initial session setup by the user component has gone trough the secure component as well
+        const componentTracking = requestHandlerSecure.getCallstack(session.component.tracking.id, false);
+        if (componentTracking.find(ct => ct.componentName === requestHandlerSecure.name)) { //if has gone through the security component then there should be a token
             if (!session.token) {
                 return {
                     headers: { "Content-Type":"text/plain" },
@@ -82,7 +83,7 @@ component.load(module).then( async ({ requestHandlerSecure }) => {
             requestHandlerSecure.log(`decrypting data received from ${requestUrl}`);
             request.data = utils.decryptFromBase64Str(request.data, session.privateKey, session.hashedPassphrase);
         }
-        const res = await requestHandlerSecure.publish({ session, data: request.data });
+        const res = await requestHandlerSecure.notifyDependantComponents({ session, data: request.data });
         if (res.headers){
             res.headers.token = session.token;
             res.headers.encryptionkey = session.encryptionkey.local;
