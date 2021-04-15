@@ -2,17 +2,16 @@ const utils = require("utils");
 const component = require("component");
 component.load(module).then( async ({ requestHandlerSecure }) => {
     requestHandlerSecure.receiveDependantComponentNotifications(async ({ session, request, route }) => {
-        if (!route.issecure) {  // this module does not handle unsecure routes
-            return;
-        }
+        
         let { passphrase, encryptionkey, token } = request.headers;
         delete request.headers["passphrase"];
         delete request.headers["encryptionkey"];
         delete request.headers["token"];
 
-        if (requestHandlerSecure.inCallstack()) { //if this component is in the callstack then it has been visited before and the route is secure it should have a token
+        if (requestHandlerSecure.inCallstack(true)) { //if this component is in the callstack then it has been visited before and the route is secure it should have a token
             if (!session.token) {
                 return {
+                    success: false,
                     headers: { "Content-Type":"text/plain" },
                     statusCode: 401,
                     statusMessage: "Unauthorised",
@@ -22,6 +21,7 @@ component.load(module).then( async ({ requestHandlerSecure }) => {
             //need to reassure that the token is still in the headers
             if (!token) {
                 return {
+                    success: false,
                     headers: { "Content-Type":"text/plain" },
                     statusCode: 401,
                     statusMessage: "Unauthorised",
@@ -30,6 +30,7 @@ component.load(module).then( async ({ requestHandlerSecure }) => {
             }
             if (userSession.token !== token) {
                 return {
+                    success: false,
                     headers: { "Content-Type":"text/plain" },
                     statusCode: 401,
                     statusMessage: "Unauthorised",
@@ -39,6 +40,7 @@ component.load(module).then( async ({ requestHandlerSecure }) => {
         } else { //On first request for secure route
             if (!passphrase) {
                 return {
+                    success: false,
                     headers: { "Content-Type":"text/plain" },
                     statusCode: 401,
                     statusMessage: "Unauthorised",
@@ -47,6 +49,7 @@ component.load(module).then( async ({ requestHandlerSecure }) => {
             }
             if (!encryptionkey) {
                 return {
+                    success: false,
                     headers: { "Content-Type":"text/plain" },
                     statusCode: 401,
                     statusMessage: "Unauthorised",
@@ -67,6 +70,7 @@ component.load(module).then( async ({ requestHandlerSecure }) => {
                 session.hashedPassphrase = results.hashedPassphrase;
             } else {
                 return {
+                    success: false,
                     headers: { 
                         "Content-Type":"text/plain"
                     },
@@ -91,6 +95,7 @@ component.load(module).then( async ({ requestHandlerSecure }) => {
                     res.data = encryptedData;
                 } else {
                     return {
+                        success: false,
                         headers: { "Content-Type":"text/plain" },
                         statusCode: 400,
                         statusMessage:"400 Bad Request",
@@ -101,6 +106,7 @@ component.load(module).then( async ({ requestHandlerSecure }) => {
             return res;
         } else {
             return {
+                success: false,
                 headers: { "Content-Type":"text/plain" },
                 statusCode: 500,
                 statusMessage:"Internal Server Error",
