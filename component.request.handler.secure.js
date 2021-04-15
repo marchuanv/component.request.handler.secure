@@ -1,8 +1,10 @@
 const utils = require("utils");
 const component = require("component");
 component.load(module).then( async ({ requestHandlerSecure }) => {
-    requestHandlerSecure.receiveDependantComponentNotifications(async ({ session, request, route }) => {
-        
+    requestHandlerSecure.receiveDependantComponentNotifications(async ({ route }) => {
+        return route.issecure;
+    }, async ({ session, request, route }) => {
+             
         let { passphrase, encryptionkey, token } = request.headers;
         delete request.headers["passphrase"];
         delete request.headers["encryptionkey"];
