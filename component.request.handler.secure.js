@@ -10,9 +10,7 @@ component.load(module).then( async ({ requestHandlerSecure }) => {
         delete request.headers["encryptionkey"];
         delete request.headers["token"];
 
-        //see if the initial session setup by the user component has gone trough the secure component as well
-        const componentTracking = requestHandlerSecure.getCallstack(session.component.tracking.id, false);
-        if (componentTracking.find(ct => ct.componentName === requestHandlerSecure.name)) { //if has gone through the security component then there should be a token
+        if (requestHandlerSecure.inCallstack()) { //if this component is in the callstack then it has been visited before and the route is secure it should have a token
             if (!session.token) {
                 return {
                     headers: { "Content-Type":"text/plain" },
